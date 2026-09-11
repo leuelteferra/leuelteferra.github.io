@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Leuel</title>
+<meta name="description" content="First-generation. Finance, investing, and everything in between.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;700&family=Noto+Serif+Ethiopic:wght@400&display=swap" rel="stylesheet">
+<style>
+
+/* --- Reset & tokens (matches robelm.com) --- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #F4F1EA;
+  --text: #111111;
+  --text-light: rgba(17, 17, 17, 0.5);
+  --text-subtle: rgba(17, 17, 17, 0.25);
+  --mono: 'Courier Prime', 'Courier New', 'Courier', monospace;
+}
+html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+*, *::before, *::after, *:hover, *:focus, *:active,
+a, a:hover, a:focus { cursor: none !important; }
+.custom-cursor {
+  position: fixed; top: -5px; left: -5px;
+  width: 10px; height: 10px;
+  background-color: #000; border-radius: 50%;
+  pointer-events: none; z-index: 9999; will-change: transform;
+}
+@media (pointer: coarse) {
+  *, *::before, *::after { cursor: auto !important; }
+  .custom-cursor { display: none; }
+}
+body {
+  background-color: var(--bg); color: var(--text);
+  font-family: var(--mono); font-weight: 400;
+  line-height: 1.7; min-height: 100vh;
+}
+::selection { background: rgba(17, 17, 17, 0.08); }
+a { color: var(--text); text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* --- Navigation: fixed top-right, uppercase, underline grows on hover --- */
+.nav {
+  position: fixed; top: 0; right: 0;
+  padding: 2.5rem 3rem; z-index: 100;
+  display: flex; gap: 2.5rem;
+}
+.nav a {
+  font-family: var(--mono); font-size: 0.75rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-light); transition: color 0.3s ease; position: relative;
+}
+.nav a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 1px; background: var(--text); transition: width 0.3s ease;
+}
+.nav a:hover { color: var(--text); }
+.nav a:hover::after { width: 100%; }
+.nav a.active { color: var(--text); }
+
+/* --- Polaroid --- */
+.polaroid {
+  background: #fff;
+  padding: 10px 10px 40px 10px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.08), 0 1px 8px rgba(0,0,0,0.04);
+}
+.polaroid img { width: 100%; filter: saturate(0.85) contrast(1.05); }
+
+/* --- Page transitions --- */
+.page-enter { animation: pageIn 0.6s ease forwards; }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) { .page-enter { animation: none; } }
+
+@media (max-width: 768px) {
+  .nav { padding: 1.5rem 1.5rem; gap: 1.8rem; }
+  .nav a { font-size: 0.7rem; }
+}
+
+
+.about { max-width: 520px; padding: 6.5rem 3rem 2.5rem; }
+.about__text {
+  font-size: 0.75rem; line-height: 1.9; color: var(--text); opacity: 0.8;
+}
+/* links are color-coded like his: green = current, blue = former */
+.about__principles {
+  margin-top: 2.5rem;
+  font-size: 0.75rem; line-height: 1.9; opacity: 0.8;
+  white-space: pre; text-align: left;
+  min-height: 12em;
+}
+.about__principles .cursor {
+  display: inline-block; width: 1px; height: 1.1em;
+  background: var(--text); vertical-align: text-bottom;
+  margin-left: 1px; animation: blink 0.6s step-end infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* photo: polaroid that flips on click to a handwritten note */
+.about__photo {
+  margin: 2rem 0 0 3rem;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0.8rem;
+  padding-bottom: 3rem;
+}
+.polaroid-container { perspective: 800px; width: 240px; }
+.polaroid-flipper {
+  position: relative; width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+.polaroid-flipper.flipped { transform: rotateY(180deg); }
+.polaroid-front, .polaroid-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.polaroid-front { position: relative; }
+.about__photo .polaroid { width: 240px; padding: 6px 6px 24px 6px; }
+.polaroid-back {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  transform: rotateY(180deg);
+  background: #fff; padding: 10px 10px 40px 10px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.08), 0 1px 8px rgba(0,0,0,0.04);
+  display: flex; align-items: center; justify-content: center;
+}
+.polaroid-back-text {
+  font-family: 'Caveat', cursive; font-size: 1rem; line-height: 1.6;
+  color: #222; padding: 0.8rem; font-weight: 700; transform: rotate(-2deg);
+}
+.about__signature {
+  font-family: 'Noto Serif Ethiopic', var(--mono);
+  font-size: 0.95rem; opacity: 0.8; letter-spacing: 0.05em; line-height: 1.6;
+}
+@media (max-width: 768px) {
+  .about { padding: 5.5rem 1.5rem 2rem; max-width: 100%; }
+  .about__text, .about__principles { font-size: 0.7rem; }
+  .about__photo { margin-left: 1.5rem; }
+  .about__photo .polaroid { width: 210px; }
+  .polaroid-container { width: 210px; }
+}
+
+</style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="active">About</a>
+    <a href="collage.html">Collage</a>
+    <a href="albums.html">Albums</a>
+    <a href="misc.html">Misc</a>
+  </nav>
+
+  <main class="about page-enter">
+    <div class="about__text">
+      <p>
+        Currently studying economics &amp; cognitive science @ <a href="https://www.ucla.edu/" target="_blank" style="color: #2e7d32;">ucla</a>. Interested in the intersection of tech and investing. Music fan. Middle Child. Raised by immigrants who survived on less so I could strive for more. Ethiopia (roots), Sacramento (hometown), Los Angeles (current home).
+      </p>
+    </div>
+
+    <div class="about__principles" id="typewriter"></div>
+  </main>
+
+  <div class="about__photo">
+    <!-- Click the polaroid to flip it and reveal a handwritten note.
+         Replace photo.jpg with your photo, and edit the note text below. -->
+    <div class="polaroid-container">
+      <div class="polaroid-flipper" id="flipper">
+        <div class="polaroid-front">
+          <div class="polaroid">
+            <img src="photo.jpg" alt="Childhood photograph">
+          </div>
+        </div>
+        <div class="polaroid-back">
+          <div class="polaroid-back-text">
+            Sacramento, May 2008.<br>
+            Still the same kid.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="about__signature">
+      ልዑል ተፈራ
+    </div>
+  </div>
+
+
+<script>
+
+/* Robel's cursor.js: one black dot, smooth lerp follow */
+(function () {
+  'use strict';
+  if ('ontouchstart' in window && !window.matchMedia('(pointer: fine)').matches) return;
+  var dot = document.createElement('div');
+  dot.className = 'custom-cursor';
+  document.body.appendChild(dot);
+  var mx = -100, my = -100, cx = -100, cy = -100;
+  document.addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mouseenter', function () { dot.style.opacity = '1'; });
+  document.addEventListener('mouseleave', function () { dot.style.opacity = '0'; });
+  function tick() {
+    cx += (mx - cx) * 0.35;
+    cy += (my - cy) * 0.35;
+    dot.style.transform = 'translate(' + cx + 'px, ' + cy + 'px)';
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+</script>
+<script>
+  /* Typewriter with the deliberate typo (Robel's exact logic).
+     Customize: change `text` (typo included), deleteCount, and `correction`. */
+  (function () {
+    var el = document.getElementById('typewriter');
+    var cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    el.appendChild(cursor);
+
+    var actions = [];
+    var text = 'Always trying to be:\n\n* kind\n* honest\n* curiuous';
+    var deleteCount = 4;
+    var correction = 'ous\n* grateful';
+
+    for (var i = 0; i < text.length; i++) actions.push({ type: 'char', char: text[i] });
+    actions.push({ type: 'pause', ms: 400 });
+    for (var d = 0; d < deleteCount; d++) actions.push({ type: 'delete' });
+    actions.push({ type: 'pause', ms: 200 });
+    for (var c = 0; c < correction.length; c++) actions.push({ type: 'char', char: correction[c] });
+
+    var content = '';
+    var idx = 0;
+    var baseTypeSpeed = 70;
+    var deleteSpeed = 50;
+
+    function tick() {
+      if (idx >= actions.length) return;
+      var action = actions[idx];
+      idx++;
+      if (action.type === 'char') {
+        content += action.char;
+        el.textContent = content;
+        el.appendChild(cursor);
+        var speed = baseTypeSpeed + Math.random() * 40;
+        if (action.char === '\n') speed += 100;
+        setTimeout(tick, speed);
+      } else if (action.type === 'delete') {
+        content = content.slice(0, -1);
+        el.textContent = content;
+        el.appendChild(cursor);
+        setTimeout(tick, deleteSpeed);
+      } else if (action.type === 'pause') {
+        setTimeout(tick, action.ms);
+      }
+    }
+    setTimeout(tick, 800);
+  })();
+
+  /* Polaroid flip on click */
+  (function () {
+    var flipper = document.getElementById('flipper');
+    if (!flipper) return;
+    flipper.parentElement.addEventListener('click', function () {
+      flipper.classList.toggle('flipped');
+    });
+  })();
+</script>
+</body>
+</html>

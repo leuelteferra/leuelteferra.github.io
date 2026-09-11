@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misc — Leuel</title>
+<meta name="description" content="More to come.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;700&family=Noto+Serif+Ethiopic:wght@400&display=swap" rel="stylesheet">
+<style>
+/* --- Reset & tokens (matches robelm.com) --- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #F4F1EA;
+  --text: #111111;
+  --text-light: rgba(17, 17, 17, 0.5);
+  --text-subtle: rgba(17, 17, 17, 0.25);
+  --mono: 'Courier Prime', 'Courier New', 'Courier', monospace;
+}
+html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+*, *::before, *::after, *:hover, *:focus, *:active,
+a, a:hover, a:focus { cursor: none !important; }
+.custom-cursor {
+  position: fixed; top: -5px; left: -5px;
+  width: 10px; height: 10px;
+  background-color: #000; border-radius: 50%;
+  pointer-events: none; z-index: 9999; will-change: transform;
+}
+@media (pointer: coarse) {
+  *, *::before, *::after { cursor: auto !important; }
+  .custom-cursor { display: none; }
+}
+body {
+  background-color: var(--bg); color: var(--text);
+  font-family: var(--mono); font-weight: 400;
+  line-height: 1.7; min-height: 100vh;
+}
+::selection { background: rgba(17, 17, 17, 0.08); }
+a { color: var(--text); text-decoration: none; }
+img { max-width: 100%; display: block; }
+.nav {
+  position: fixed; top: 0; right: 0;
+  padding: 2.5rem 3rem; z-index: 100;
+  display: flex; gap: 2.5rem;
+}
+.nav a {
+  font-family: var(--mono); font-size: 0.75rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-light); transition: color 0.3s ease; position: relative;
+}
+.nav a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 1px; background: var(--text); transition: width 0.3s ease;
+}
+.nav a:hover { color: var(--text); }
+.nav a:hover::after { width: 100%; }
+.nav a.active { color: var(--text); }
+.page-enter { animation: pageIn 0.6s ease forwards; }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) { .page-enter { animation: none; } }
+
+/* --- Misc page --- */
+.misc-page { width: 100%; min-height: 100vh; position: relative; padding-top: 6.5rem; padding-left: 3rem; padding-right: 1.5rem; padding-bottom: 3rem; }
+.misc-heading { max-width: 320px; }
+.misc-heading p { font-size: 0.75rem; line-height: 1.9; opacity: 0.8; }
+
+/* counter (his "Sonics counter" pattern) */
+.sonics-counter { margin-top: 2rem; }
+.sonics-counter__title { font-size: 0.75rem; line-height: 1.9; opacity: 0.8; margin-bottom: 1.2rem; }
+.sonics-counter__boxes { display: flex; gap: 0.6rem; }
+.sonics-box {
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 3.2rem; padding: 0.6rem 0.5rem;
+  border: 1px solid rgba(17, 17, 17, 0.12); border-radius: 3px;
+}
+.sonics-box__number { font-size: 1.1rem; font-weight: 700; opacity: 0.7; line-height: 1; }
+.sonics-box__label {
+  font-size: 0.55rem; opacity: 0.4; letter-spacing: 0.04em;
+  text-transform: uppercase; margin-top: 0.35rem;
+}
+
+/* globe */
+.globe-container {
+  margin-top: 2rem; width: 280px; height: 280px;
+  pointer-events: auto; opacity: 0; transition: opacity 1.2s ease;
+}
+.globe-container.visible { opacity: 1; }
+.globe-container__title { font-size: 0.75rem; line-height: 1.9; opacity: 0.8; margin-bottom: 0.8rem; }
+.globe-container canvas { width: 100%; height: 100%; }
+
+/* video */
+.misc-video { margin-top: 8rem; max-width: 160px; }
+.misc-video__title { font-size: 0.75rem; line-height: 1.9; opacity: 0.8; margin-bottom: 0.5rem; }
+.misc-video video { width: 100%; display: block; border-radius: 4px; }
+
+/* links + expandable notes */
+.misc-links { margin-top: 3rem; max-width: 620px; list-style: none; }
+.misc-links li { margin-bottom: 0.6rem; }
+.misc-links a, .misc-links span { font-size: 0.75rem; line-height: 1.9; opacity: 0.8; }
+.misc-links a { text-decoration: underline; text-underline-offset: 2px; }
+.misc-links a:hover { opacity: 1; }
+.misc-essay { margin-top: 3rem; max-width: 620px; }
+.misc-essay__title {
+  font-size: 0.75rem; line-height: 1.9; opacity: 0.8;
+  list-style: none; display: inline-block; transition: opacity 0.2s ease;
+}
+.misc-essay__title::-webkit-details-marker { display: none; }
+.misc-essay__title::before { content: "+ "; opacity: 0.5; }
+.misc-essay[open] .misc-essay__title::before { content: "\2212 "; }
+.misc-essay__title:hover { opacity: 1; }
+.misc-essay__body { margin-top: 1rem; max-width: 560px; }
+.misc-essay__body p { font-size: 0.75rem; line-height: 1.9; opacity: 0.8; margin-bottom: 1rem; }
+
+.misc-footer {
+  margin-top: 3rem;
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.18;
+  letter-spacing: 0.01em;
+}
+.misc-signature {
+  font-family: 'Noto Serif Ethiopic', var(--mono);
+  margin-top: 4rem; font-size: 0.95rem; opacity: 0.8; letter-spacing: 0.05em;
+}
+@media (max-width: 768px) {
+  .nav { padding: 1.5rem 1.5rem; gap: 1.8rem; }
+  .nav a { font-size: 0.7rem; }
+  .misc-page { min-height: auto; padding-top: 5.5rem; padding-left: 1.5rem; }
+  .misc-heading { max-width: 80%; }
+  .sonics-counter__title, .globe-container__title { font-size: 0.7rem; }
+  .sonics-box { min-width: 2.8rem; padding: 0.5rem 0.4rem; }
+  .sonics-box__number { font-size: 0.95rem; }
+  .globe-container { width: 160px; height: 160px; opacity: 1; }
+  .misc-video { max-width: 120px; }
+  .misc-heading p, .misc-links a, .misc-links span,
+  .misc-essay__title, .misc-essay__body p { font-size: 0.7rem; }
+}
+</style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html">About</a>
+    <a href="collage.html">Collage</a>
+    <a href="albums.html">Albums</a>
+    <a href="misc.html" class="active">Misc</a>
+  </nav>
+
+  <main class="misc-page page-enter">
+    <div class="misc-heading">
+      <p>More to come.</p>
+    </div>
+
+    <!-- LIVE COUNTER: his counts time since the Sonics left Seattle.
+         Make it yours: change the title and the date in the script below
+         (a move, a milestone, a heartbreak, an anniversary). -->
+    <div class="sonics-counter" id="sonics-counter">
+      <p class="sonics-counter__title">Time since I moved to LA</p>
+      <div class="sonics-counter__boxes">
+        <div class="sonics-box"><span class="sonics-box__number" id="sc-years">0</span><span class="sonics-box__label">years</span></div>
+        <div class="sonics-box"><span class="sonics-box__number" id="sc-months">0</span><span class="sonics-box__label">months</span></div>
+        <div class="sonics-box"><span class="sonics-box__number" id="sc-days">0</span><span class="sonics-box__label">days</span></div>
+        <div class="sonics-box"><span class="sonics-box__number" id="sc-hours">0</span><span class="sonics-box__label">hours</span></div>
+        <div class="sonics-box"><span class="sonics-box__number" id="sc-minutes">0</span><span class="sonics-box__label">min</span></div>
+      </div>
+    </div>
+
+    <!-- GLOBE: dots for everywhere your family has been.
+         Add coordinates as [longitude, latitude] in the script below. -->
+    <div class="globe-container" id="globe-container">
+      <p class="globe-container__title">Where the family went</p>
+      <canvas id="globe-canvas"></canvas>
+    </div>
+
+    <!-- VIDEO: drop a short looping clip (e.g. clip.mp4) in this folder
+         and uncomment this block.
+    <div class="misc-video" id="misc-video">
+      <p class="misc-video__title">Title of the clip</p>
+      <video autoplay loop muted playsinline>
+        <source src="clip.mp4" type="video/mp4">
+      </video>
+    </div>
+    -->
+
+    <ul class="misc-links">
+      <li><span>Professional Experience: </span><a href="https://www.linkedin.com/in/leuel-teferra/" target="_blank">LinkedIn</a></li>
+      <li><span>leuel@ucla.edu</span></li>
+    </ul>
+
+    <details class="misc-essay" open>
+      <summary class="misc-essay__title">a note</summary>
+      <div class="misc-essay__body">
+        <p>thanks for the opportunity Recalc</p>
+      </div>
+    </details>
+
+    <p class="misc-signature">ልዑል ተፈራ</p>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3-array@3.2.4/dist/d3-array.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-geo@3.1.1/dist/d3-geo.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+
+<script>
+  /* Robel's cursor.js: one black dot, smooth lerp follow */
+  (function () {
+    'use strict';
+    if ('ontouchstart' in window && !window.matchMedia('(pointer: fine)').matches) return;
+    var dot = document.createElement('div');
+    dot.className = 'custom-cursor';
+    document.body.appendChild(dot);
+    var mx = -100, my = -100, cx = -100, cy = -100;
+    document.addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; });
+    document.addEventListener('mouseenter', function () { dot.style.opacity = '1'; });
+    document.addEventListener('mouseleave', function () { dot.style.opacity = '0'; });
+    function tick() {
+      cx += (mx - cx) * 0.35;
+      cy += (my - cy) * 0.35;
+      dot.style.transform = 'translate(' + cx + 'px, ' + cy + 'px)';
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  })();
+</script>
+
+<script>
+  /* LIVE COUNTER (his exact logic).
+     Change this date to your own moment: new Date(year, monthIndex, day)
+     Note monthIndex starts at 0: January = 0, September = 8. */
+  (function () {
+    var departure = new Date(2025, 8, 17);
+    var elYears = document.getElementById('sc-years');
+    var elMonths = document.getElementById('sc-months');
+    var elDays = document.getElementById('sc-days');
+    var elHours = document.getElementById('sc-hours');
+    var elMinutes = document.getElementById('sc-minutes');
+
+    function update() {
+      var now = new Date();
+      var years = now.getFullYear() - departure.getFullYear();
+      var months = now.getMonth() - departure.getMonth();
+      var days = now.getDate() - departure.getDate();
+      var hours = now.getHours();
+      var minutes = now.getMinutes();
+
+      if (days < 0) {
+        months--;
+        var prev = new Date(now.getFullYear(), now.getMonth(), 0);
+        days += prev.getDate();
+      }
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      elYears.textContent = years;
+      elMonths.textContent = months;
+      elDays.textContent = days;
+      elHours.textContent = hours;
+      elMinutes.textContent = minutes;
+    }
+
+    update();
+    setInterval(update, 1000);
+  })();
+</script>
+
+<script>
+  /* GLOBE (Robel's globe.js). One change: the land-outline data loads from
+     a CDN instead of a local file, so nothing extra to download.
+     Add your family's places to `locations` as [longitude, latitude]. */
+  (function () {
+    'use strict';
+
+    var ROTATION_SPEED = 0.15;
+    var LAND_STROKE = 'rgba(17, 17, 17, 0.18)';
+    var LAND_FILL = 'rgba(17, 17, 17, 0.04)';
+    var SPHERE_STROKE = 'rgba(17, 17, 17, 0.08)';
+    var SPHERE_FILL = '#F4F1EA';
+    var GRATICULE_STROKE = 'rgba(17, 17, 17, 0.04)';
+    var DOT_FILL = 'rgba(17, 17, 17, 0.55)';
+    var DOT_RADIUS = 2.2;
+    var DATA_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json';
+
+    // --- Family locations [longitude, latitude] ---
+    var locations = [
+      { coords: [-121.4944, 38.5816] },   // Sacramento
+      { coords: [-118.2437, 34.0522] },   // Los Angeles
+      { coords: [-117.1611, 32.7157] },   // San Diego
+      { coords: [-122.3321, 47.6062] },   // Seattle
+      { coords: [-122.6765, 45.5231] },   // Oregon (Portland)
+      { coords: [-98.4936, 29.4241] },    // San Antonio, TX
+      { coords: [-77.0369, 38.9072] },    // Washington, DC
+      { coords: [-74.0060, 40.7128] },    // New York
+      { coords: [-0.1276, 51.5074] },     // London
+      { coords: [13.4050, 52.5200] },     // Germany (Berlin)
+      { coords: [10.7522, 59.9139] },     // Norway (Oslo)
+      { coords: [12.4964, 41.9028] },     // Rome
+      { coords: [38.7578, 9.0250] },      // Ethiopia (Addis Ababa)
+      { coords: [31.5825, 4.8517] },      // South Sudan (Juba)
+      { coords: [144.9631, -37.8136] }    // Melbourne, Australia
+    ];
+
+    var canvas = document.getElementById('globe-canvas');
+    var container = document.getElementById('globe-container');
+    if (!canvas || !container) return;
+
+    var ctx = canvas.getContext('2d');
+    var dpr = window.devicePixelRatio || 1;
+    var size = 280;
+    var rotation = [0, -20, 0];
+    var land = null;
+    var animationId = null;
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var projection = d3.geoOrthographic().precision(0.5);
+    var path = d3.geoPath(projection, ctx);
+    var graticule = d3.geoGraticule10();
+
+    function setupCanvas() {
+      var rect = container.getBoundingClientRect();
+      size = Math.round(rect.width);
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      canvas.style.width = size + 'px';
+      canvas.style.height = size + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function updateProjection() {
+      projection
+        .translate([size / 2, size / 2])
+        .scale(size / 2 - 2)
+        .rotate(rotation);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, size, size);
+      updateProjection();
+
+      ctx.beginPath();
+      path({ type: 'Sphere' });
+      ctx.fillStyle = SPHERE_FILL;
+      ctx.fill();
+      ctx.strokeStyle = SPHERE_STROKE;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.beginPath();
+      path(graticule);
+      ctx.strokeStyle = GRATICULE_STROKE;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+
+      if (land) {
+        ctx.beginPath();
+        path(land);
+        ctx.fillStyle = LAND_FILL;
+        ctx.fill();
+        ctx.strokeStyle = LAND_STROKE;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+
+      var center = projection.invert([size / 2, size / 2]);
+      for (var i = 0; i < locations.length; i++) {
+        var loc = locations[i];
+        var projected = projection(loc.coords);
+        if (projected) {
+          var dist = d3.geoDistance(loc.coords, center);
+          if (dist < Math.PI / 2) {
+            ctx.beginPath();
+            ctx.arc(projected[0], projected[1], DOT_RADIUS, 0, 2 * Math.PI);
+            ctx.fillStyle = DOT_FILL;
+            ctx.fill();
+          }
+        }
+      }
+    }
+
+    function animate() {
+      rotation[0] += ROTATION_SPEED;
+      draw();
+      animationId = requestAnimationFrame(animate);
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+          animationId = null;
+        }
+      } else {
+        if (!animationId && land) {
+          if (prefersReducedMotion) {
+            draw();
+          } else {
+            animationId = requestAnimationFrame(animate);
+          }
+        }
+      }
+    });
+
+    var resizeTimeout;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(function () {
+        setupCanvas();
+        draw();
+      }, 200);
+    });
+
+    fetch(DATA_URL)
+      .then(function (response) { return response.json(); })
+      .then(function (topology) {
+        land = topojson.feature(topology, topology.objects.land);
+        setupCanvas();
+        draw();
+        container.classList.add('visible');
+
+        if (!prefersReducedMotion) {
+          animationId = requestAnimationFrame(animate);
+        }
+      })
+      .catch(function (err) {
+        console.warn('Globe data failed to load:', err);
+      });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Albums — Leuel</title>
+<meta name="description" content="Music worth keeping.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;700&family=Noto+Serif+Ethiopic:wght@400&display=swap" rel="stylesheet">
+<style>
+
+/* --- Reset & tokens (matches robelm.com) --- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #F4F1EA;
+  --text: #111111;
+  --text-light: rgba(17, 17, 17, 0.5);
+  --text-subtle: rgba(17, 17, 17, 0.25);
+  --mono: 'Courier Prime', 'Courier New', 'Courier', monospace;
+}
+html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+*, *::before, *::after, *:hover, *:focus, *:active,
+a, a:hover, a:focus { cursor: none !important; }
+.custom-cursor {
+  position: fixed; top: -5px; left: -5px;
+  width: 10px; height: 10px;
+  background-color: #000; border-radius: 50%;
+  pointer-events: none; z-index: 9999; will-change: transform;
+}
+@media (pointer: coarse) {
+  *, *::before, *::after { cursor: auto !important; }
+  .custom-cursor { display: none; }
+}
+body {
+  background-color: var(--bg); color: var(--text);
+  font-family: var(--mono); font-weight: 400;
+  line-height: 1.7; min-height: 100vh;
+}
+::selection { background: rgba(17, 17, 17, 0.08); }
+a { color: var(--text); text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* --- Navigation: fixed top-right, uppercase, underline grows on hover --- */
+.nav {
+  position: fixed; top: 0; right: 0;
+  padding: 2.5rem 3rem; z-index: 100;
+  display: flex; gap: 2.5rem;
+}
+.nav a {
+  font-family: var(--mono); font-size: 0.75rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-light); transition: color 0.3s ease; position: relative;
+}
+.nav a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 1px; background: var(--text); transition: width 0.3s ease;
+}
+.nav a:hover { color: var(--text); }
+.nav a:hover::after { width: 100%; }
+.nav a.active { color: var(--text); }
+
+/* --- Polaroid --- */
+.polaroid {
+  background: #fff;
+  padding: 10px 10px 40px 10px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.08), 0 1px 8px rgba(0,0,0,0.04);
+}
+.polaroid img { width: 100%; filter: saturate(0.85) contrast(1.05); }
+
+/* --- Page transitions --- */
+.page-enter { animation: pageIn 0.6s ease forwards; }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) { .page-enter { animation: none; } }
+
+@media (max-width: 768px) {
+  .nav { padding: 1.5rem 1.5rem; gap: 1.8rem; }
+  .nav a { font-size: 0.7rem; }
+}
+
+
+.music-page { width: 100%; height: 100vh; overflow: hidden; position: relative; }
+.music-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; }
+.album-cover {
+  position: absolute; width: 160px; height: 160px;
+  pointer-events: none; opacity: 0;
+  animation: albumFadeIn 0.6s ease forwards;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.15),
+    0 4px 8px rgba(0,0,0,0.12),
+    0 12px 28px rgba(0,0,0,0.14),
+    0 20px 40px rgba(0,0,0,0.08);
+  border-radius: 2px;
+  will-change: opacity, transform;
+  transition: opacity 0.6s ease;
+}
+.album-cover img { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; filter: none; }
+@keyframes albumFadeIn {
+  from { opacity: 0; transform: var(--rotation) scale(0.85); }
+  to   { opacity: 1; transform: var(--rotation) scale(1); }
+}
+.music-heading {
+  position: fixed; top: 2.5rem; left: 3rem; max-width: 320px;
+  z-index: 50; pointer-events: none; transition: opacity 0.8s ease;
+}
+.music-heading p { font-size: 0.75rem; font-style: italic; line-height: 1.9; opacity: 0.8; }
+.music-heading cite {
+  display: block; margin-top: 0.6rem; font-style: normal;
+  font-size: 0.65rem; opacity: 0.4; letter-spacing: 0.02em;
+}
+.music-heading cite em { font-style: italic; }
+.music-footer {
+  position: fixed; bottom: 2.5rem; left: 0; right: 0;
+  text-align: center; z-index: 10; pointer-events: none;
+}
+.music-footer p { font-size: 0.8rem; opacity: 0.18; letter-spacing: 0.01em; }
+@media (max-width: 768px) {
+  .album-cover { width: 120px; height: 120px; }
+  .music-heading { top: 5.5rem; left: 1.5rem; max-width: 260px; }
+  .music-heading p { font-size: 0.7rem; }
+}
+
+</style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html">About</a>
+    <a href="collage.html">Collage</a>
+    <a href="albums.html" class="active">Albums</a>
+    <a href="misc.html">Misc</a>
+  </nav>
+
+  <main class="music-page page-enter">
+    <div class="music-heading">
+      <!-- A line about what music means to you; edit freely -->
+      <p>&ldquo;One good thing about music, when it hits you, you feel no pain.&rdquo;</p>
+      <cite>&mdash; Bob Marley</cite>
+    </div>
+    <div class="music-canvas" id="music-canvas"></div>
+    <div class="music-footer">
+      <p>move your mouse</p>
+    </div>
+  </main>
+
+
+<script>
+
+/* Robel's cursor.js: one black dot, smooth lerp follow */
+(function () {
+  'use strict';
+  if ('ontouchstart' in window && !window.matchMedia('(pointer: fine)').matches) return;
+  var dot = document.createElement('div');
+  dot.className = 'custom-cursor';
+  document.body.appendChild(dot);
+  var mx = -100, my = -100, cx = -100, cy = -100;
+  document.addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mouseenter', function () { dot.style.opacity = '1'; });
+  document.addEventListener('mouseleave', function () { dot.style.opacity = '0'; });
+  function tick() {
+    cx += (mx - cx) * 0.35;
+    cy += (my - cy) * 0.35;
+    dot.style.transform = 'translate(' + cx + 'px, ' + cy + 'px)';
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+</script>
+<script>
+  /* Album covers appear along your cursor's path, hold, then fade.
+     COVERS: replace with your album art, e.g. 'images/cover-1.jpg'.
+     Square images look best. */
+  (function () {
+    var covers = [
+      'images/covers/sinatra-dorsey-essential.jpg',
+      'images/covers/sinatra-nothing-but-the-best.jpg',
+      'images/covers/marvin-whats-going-on.jpg',
+      'images/covers/stevie-songs-key-of-life.jpg',
+      'images/covers/mj-thriller.jpg',
+      'images/covers/mj-dangerous.jpg',
+      'images/covers/mulatu-ethio-jazz.jpg',
+      'images/covers/mary-j-blige-my-life.jpg',
+      'images/covers/mary-j-share-my-world.jpg',
+      'images/covers/swv-new-beginning.jpg',
+      'images/covers/2pac-all-eyez-on-me.jpg',
+      'images/covers/nas-illmatic.jpg',
+      'images/covers/lauryn-hill-unplugged.jpg',
+      'images/covers/outkast-stankonia.jpg',
+      'images/covers/mfdoom-operation-doomsday.jpg',
+      'images/covers/mfdoom-mm-food.jpg',
+      'images/covers/kanye-college-dropout.jpg',
+      'images/covers/pharrell-in-my-mind.jpg',
+      'images/covers/mac-miller-kids.jpg',
+      'images/covers/mac-devin-high-school.jpg',
+      'images/covers/drake-take-care.jpg',
+      'images/covers/frank-channel-orange.jpg',
+      'images/covers/kendrick-gkmc.jpg',
+      'images/covers/kendrick-tpab.jpg',
+      'images/covers/weeknd-bbtm.jpg',
+      'images/covers/frank-blonde.jpg',
+      'images/covers/rihanna-anti.jpg',
+      'images/covers/sza-ctrl.jpg',
+      'images/covers/tyler-flower-boy.jpg',
+      'images/covers/tyler-igor.jpg',
+      'images/covers/tyler-cmiygl.jpg',
+      'images/covers/lil-tecca-we-love-you.jpg',
+      'images/covers/dj-mustard-perfect-ten.jpg',
+      'images/covers/amine-twopointfive.jpg',
+      'images/covers/blxst-before-you-go.jpg',
+      'images/covers/larry-june-orange-print.jpg',
+      'images/covers/porsche-cover.jpg',
+      'images/covers/statue-cover.jpg'
+    ];
+
+    var canvas = document.getElementById('music-canvas');
+    var SPAWN_DISTANCE = 70;
+    var LIFETIME = 1800;
+    var MAX_LIVE = 24;
+
+    /* Rolling preloader: loads the first 10 covers now, then stays a few
+       ahead of the rotation as you move. Scales to any list length. */
+    var loadedSet = {};
+    function preload(i) {
+      var src = covers[((i % covers.length) + covers.length) % covers.length];
+      if (loadedSet[src]) return;
+      loadedSet[src] = true;
+      var im = new Image();
+      im.src = src;
+    }
+    for (var p = 0; p < Math.min(10, covers.length); p++) preload(p);
+
+    var lastX = -1000, lastY = -1000, idx = 0;
+
+    function spawn(x, y) {
+      if (canvas.children.length >= MAX_LIVE) canvas.firstChild.remove();
+      var el = document.createElement('div');
+      el.className = 'album-cover';
+      var size = window.innerWidth <= 768 ? 120 : 160;
+      el.style.left = (x - size / 2) + 'px';
+      el.style.top = (y - size / 2) + 'px';
+      el.style.setProperty('--rotation', 'rotate(' + (Math.random() * 12 - 6).toFixed(1) + 'deg)');
+      var img = document.createElement('img');
+      img.src = covers[idx++ % covers.length];
+      preload(idx + 4);
+      preload(idx + 5);
+      img.alt = '';
+      el.appendChild(img);
+      canvas.appendChild(el);
+      setTimeout(function () {
+        el.style.opacity = '0';
+        setTimeout(function () { el.remove(); }, 650);
+      }, LIFETIME);
+    }
+
+    function onMove(x, y) {
+      if (Math.hypot(x - lastX, y - lastY) > SPAWN_DISTANCE) {
+        lastX = x; lastY = y;
+        spawn(x, y);
+      }
+    }
+
+    document.addEventListener('mousemove', function (e) { onMove(e.clientX, e.clientY); });
+    document.addEventListener('touchmove', function (e) {
+      var t = e.touches[0];
+      if (t) onMove(t.clientX, t.clientY);
+    }, { passive: true });
+  })();
+</script>
+</body>
+</html>

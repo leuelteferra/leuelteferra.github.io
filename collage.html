@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collage — Leuel</title>
+<meta name="description" content="Some people, moments, places, art or things that left a mark on me.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;700&family=Noto+Serif+Ethiopic:wght@400&display=swap" rel="stylesheet">
+<style>
+
+/* --- Reset & tokens (matches robelm.com) --- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #F4F1EA;
+  --text: #111111;
+  --text-light: rgba(17, 17, 17, 0.5);
+  --text-subtle: rgba(17, 17, 17, 0.25);
+  --mono: 'Courier Prime', 'Courier New', 'Courier', monospace;
+}
+html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+*, *::before, *::after, *:hover, *:focus, *:active,
+a, a:hover, a:focus { cursor: none !important; }
+.custom-cursor {
+  position: fixed; top: -5px; left: -5px;
+  width: 10px; height: 10px;
+  background-color: #000; border-radius: 50%;
+  pointer-events: none; z-index: 9999; will-change: transform;
+}
+@media (pointer: coarse) {
+  *, *::before, *::after { cursor: auto !important; }
+  .custom-cursor { display: none; }
+}
+body {
+  background-color: var(--bg); color: var(--text);
+  font-family: var(--mono); font-weight: 400;
+  line-height: 1.7; min-height: 100vh;
+}
+::selection { background: rgba(17, 17, 17, 0.08); }
+a { color: var(--text); text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* --- Navigation: fixed top-right, uppercase, underline grows on hover --- */
+.nav {
+  position: fixed; top: 0; right: 0;
+  padding: 2.5rem 3rem; z-index: 100;
+  display: flex; gap: 2.5rem;
+}
+.nav a {
+  font-family: var(--mono); font-size: 0.75rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-light); transition: color 0.3s ease; position: relative;
+}
+.nav a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 1px; background: var(--text); transition: width 0.3s ease;
+}
+.nav a:hover { color: var(--text); }
+.nav a:hover::after { width: 100%; }
+.nav a.active { color: var(--text); }
+
+/* --- Polaroid --- */
+.polaroid {
+  background: #fff;
+  padding: 10px 10px 40px 10px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.08), 0 1px 8px rgba(0,0,0,0.04);
+}
+.polaroid img { width: 100%; filter: saturate(0.85) contrast(1.05); }
+
+/* --- Page transitions --- */
+.page-enter { animation: pageIn 0.6s ease forwards; }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) { .page-enter { animation: none; } }
+
+@media (max-width: 768px) {
+  .nav { padding: 1.5rem 1.5rem; gap: 1.8rem; }
+  .nav a { font-size: 0.7rem; }
+}
+
+
+.collage-page { width: 100%; height: 100vh; overflow: hidden; position: relative; }
+.collage-heading {
+  position: fixed; top: 2.5rem; left: 3rem; max-width: 320px;
+  z-index: 50; pointer-events: none;
+}
+.collage-heading p { font-size: 0.75rem; line-height: 1.9; opacity: 0.8; }
+.collage-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; }
+.collage-item {
+  position: absolute; pointer-events: none; opacity: 0;
+  transform: var(--rotation);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 6px 20px rgba(0,0,0,0.12);
+  border-radius: 2px;
+  will-change: opacity, left, top;
+}
+.collage-item img { width: 100%; display: block; border-radius: 2px; filter: none; }
+@media (max-width: 768px) {
+  .collage-heading { top: 5.5rem; left: 1.5rem; max-width: 260px; }
+  .collage-heading p { font-size: 0.7rem; }
+}
+
+</style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html">About</a>
+    <a href="collage.html" class="active">Collage</a>
+    <a href="albums.html">Albums</a>
+    <a href="misc.html">Misc</a>
+  </nav>
+
+  <main class="collage-page page-enter">
+    <div class="collage-heading">
+      <p>Some people, moments, places, art or things that left a mark on me. Working list.</p>
+    </div>
+    <div class="collage-canvas" id="collage-canvas"></div>
+  </main>
+
+
+<script>
+
+/* Robel's cursor.js: one black dot, smooth lerp follow */
+(function () {
+  'use strict';
+  if ('ontouchstart' in window && !window.matchMedia('(pointer: fine)').matches) return;
+  var dot = document.createElement('div');
+  dot.className = 'custom-cursor';
+  document.body.appendChild(dot);
+  var mx = -100, my = -100, cx = -100, cy = -100;
+  document.addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mouseenter', function () { dot.style.opacity = '1'; });
+  document.addEventListener('mouseleave', function () { dot.style.opacity = '0'; });
+  function tick() {
+    cx += (mx - cx) * 0.35;
+    cy += (my - cy) * 0.35;
+    dot.style.transform = 'translate(' + cx + 'px, ' + cy + 'px)';
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+</script>
+<script>
+  /* Robel's collage.js: photos float in from the screen edges and drift
+     across the viewport. Drift direction is pushed AWAY from your cursor,
+     so moving the mouse stirs the current. Photos fade in, drift, fade out,
+     and get replaced from a shuffled pool. Starts on first mouse move.
+
+     YOUR PHOTOS: replace this list with your own image paths, e.g.
+     'images/eth-trip.jpg'. Any mix of sizes/orientations works -
+     each photo keeps its natural aspect ratio. */
+  (function () {
+    'use strict';
+
+    var allImages = [
+      'images/drums-2009.jpg',
+      'images/brothers-2010.jpg',
+      'images/family-in-red.jpg',
+      'images/first-day-of-school.jpg',
+      'images/car-ride.jpg',
+      'images/addis-merkato.jpg',
+      'images/abebe-bikila.jpg',
+      'images/on-this-date-kobe.jpg',
+      'images/jordan-last-shot.jpg',
+      'images/thats-all-i-needed.jpg',
+      'images/usain-bolt.jpg',
+      'images/ronaldinho.jpg',
+      'images/ian-wright.jpg',
+      'images/basquiat-hollywood-africans.jpg',
+      'images/jacob-lawrence-university.jpg',
+      'images/gordon-parks-invisible-man.jpg',
+      'images/steve-jobs.jpg',
+      'images/soichiro-honda.jpg',
+      'images/bill-nye.jpg',
+      'images/tax-on-tea.jpg',
+      'images/jcole-young.jpg',
+      'images/curry-rookie-card.jpg',
+      'images/virgil-abloh-dj.jpg',
+      'images/greatest-showman.jpg',
+      'images/hidden-figures.jpg',
+      'images/bill-gates-microsoft.jpg',
+      'images/messi-young.jpg',
+      'images/queen-of-sheba.jpg'
+    ];
+
+    var widths = [180, 210, 240, 270, 300, 340];
+
+    var canvas = document.getElementById('collage-canvas');
+    var triggered = false;
+    var photos = [];
+    var pool = [];
+    var poolIndex = 0;
+    var MAX_PHOTOS = 14;
+    var SPAWN_INTERVAL = 1400;
+
+    var mouseX = 0.5;
+    var mouseY = 0.5;
+
+    function shuffle(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+      }
+      return a;
+    }
+
+    function refillPool() { pool = shuffle(allImages); poolIndex = 0; }
+    function nextImage() { if (poolIndex >= pool.length) refillPool(); return pool[poolIndex++]; }
+    function pickWidth() { return widths[Math.floor(Math.random() * widths.length)]; }
+
+    function pickEdgeSpawn(w, h) {
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var edge = Math.floor(Math.random() * 4);
+      var x, y;
+      if (edge === 0) { x = Math.random() * (vw - w); y = -h - 20; }
+      else if (edge === 1) { x = Math.random() * (vw - w); y = vh + 20; }
+      else if (edge === 2) { x = -w - 20; y = Math.random() * (vh - h); }
+      else { x = vw + 20; y = Math.random() * (vh - h); }
+      return { x: x, y: y };
+    }
+
+    function getDrift() {
+      var dx = (0.5 - mouseX) * 2.0;
+      var dy = (0.5 - mouseY) * 2.0;
+      dx += (Math.random() - 0.5) * 0.6;
+      dy += (Math.random() - 0.5) * 0.6;
+      var mag = Math.sqrt(dx * dx + dy * dy);
+      if (mag < 0.1) {
+        dx = (Math.random() - 0.5) * 2;
+        dy = (Math.random() - 0.5) * 2;
+        mag = Math.sqrt(dx * dx + dy * dy);
+      }
+      var speed = 0.8 + Math.random() * 0.4;
+      dx = (dx / mag) * speed;
+      dy = (dy / mag) * speed;
+      return { dx: dx, dy: dy };
+    }
+
+    function spawnPhoto() {
+      var src = nextImage();
+      var w = pickWidth();
+      var drift = getDrift();
+      var rotation = (Math.random() * 10 - 5).toFixed(1);
+
+      var img = new Image();
+      img.src = src;
+      img.alt = '';
+
+      function create(naturalW, naturalH) {
+        var aspect = naturalH / naturalW;
+        var h = Math.round(w * aspect);
+        var spawn = pickEdgeSpawn(w, h);
+
+        var el = document.createElement('div');
+        el.className = 'collage-item';
+        el.style.width = w + 'px';
+        el.style.left = spawn.x + 'px';
+        el.style.top = spawn.y + 'px';
+        el.style.setProperty('--rotation', 'rotate(' + rotation + 'deg)');
+        el.appendChild(img);
+        canvas.appendChild(el);
+
+        photos.push({
+          el: el, x: spawn.x, y: spawn.y, w: w, h: h,
+          dx: drift.dx, dy: drift.dy,
+          opacity: 0, phase: 'entering', life: 0
+        });
+      }
+
+      if (img.naturalWidth) create(img.naturalWidth, img.naturalHeight);
+      else img.onload = function () { create(img.naturalWidth, img.naturalHeight); };
+    }
+
+    function isOffScreen(p) {
+      var vw = window.innerWidth, vh = window.innerHeight, margin = 80;
+      return p.x < -p.w - margin || p.x > vw + margin ||
+             p.y < -p.h - margin || p.y > vh + margin;
+    }
+
+    function updatePhotos() {
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var toRemove = [];
+
+      for (var i = 0; i < photos.length; i++) {
+        var p = photos[i];
+        p.life++;
+
+        var target = getDrift();
+        p.dx += (target.dx - p.dx) * 0.003;
+        p.dy += (target.dy - p.dy) * 0.003;
+
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.phase === 'entering') {
+          p.opacity = Math.min(1, p.opacity + 0.015);
+          var insideX = p.x > -p.w * 0.5 && p.x < vw - p.w * 0.5;
+          var insideY = p.y > -p.h * 0.5 && p.y < vh - p.h * 0.5;
+          if (p.opacity >= 1 && insideX && insideY) p.phase = 'visible';
+        } else if (p.phase === 'visible') {
+          if (isOffScreen(p)) p.phase = 'exiting';
+        } else if (p.phase === 'exiting') {
+          p.opacity = Math.max(0, p.opacity - 0.02);
+          if (p.opacity <= 0) toRemove.push(i);
+        }
+
+        if (p.life > 100 && isOffScreen(p)) {
+          p.phase = 'exiting';
+          p.opacity = Math.max(0, p.opacity - 0.04);
+          if (p.opacity <= 0 && toRemove.indexOf(i) === -1) toRemove.push(i);
+        }
+
+        p.el.style.left = p.x + 'px';
+        p.el.style.top = p.y + 'px';
+        p.el.style.opacity = p.opacity;
+      }
+
+      for (var r = toRemove.length - 1; r >= 0; r--) {
+        var idx = toRemove[r];
+        photos[idx].el.remove();
+        photos.splice(idx, 1);
+      }
+
+      requestAnimationFrame(updatePhotos);
+    }
+
+    function startSpawning() {
+      var initialCount = 10 + Math.floor(Math.random() * 3);
+      for (var i = 0; i < initialCount; i++) {
+        (function (delay) { setTimeout(spawnPhoto, delay); })(i * 400);
+      }
+      setInterval(function () {
+        if (photos.length < MAX_PHOTOS) spawnPhoto();
+      }, SPAWN_INTERVAL);
+    }
+
+    function onFirstInteraction() {
+      if (triggered) return;
+      triggered = true;
+      refillPool();
+      startSpawning();
+      requestAnimationFrame(updatePhotos);
+      document.removeEventListener('mousemove', onFirstMove);
+      document.removeEventListener('touchstart', onFirstTouch);
+    }
+
+    function onFirstMove(e) {
+      mouseX = e.clientX / window.innerWidth;
+      mouseY = e.clientY / window.innerHeight;
+      onFirstInteraction();
+    }
+    function onFirstTouch() { onFirstInteraction(); }
+
+    document.addEventListener('mousemove', function (e) {
+      mouseX = e.clientX / window.innerWidth;
+      mouseY = e.clientY / window.innerHeight;
+    });
+
+    document.addEventListener('mousemove', onFirstMove);
+    document.addEventListener('touchstart', onFirstTouch, { passive: true });
+  })();
+</script>
+</body>
+</html>
